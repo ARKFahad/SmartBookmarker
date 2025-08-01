@@ -456,27 +456,40 @@ function updateTagFilter() {
 // Update category dropdowns
 function updateCategoryDropdowns() {
     const categoryFilter = document.getElementById('categoryFilter');
-    const currentValue = categoryFilter.value;
+    const categorySelect = document.getElementById('category');
+    const currentFilterValue = categoryFilter.value;
+    const currentSelectValue = categorySelect.value;
 
+    // Update filter dropdown
     categoryFilter.innerHTML = '<option value="">All categories</option>';
-
     Array.from(customCategories).sort().forEach(category => {
         const option = document.createElement('option');
         option.value = category;
         option.textContent = category;
         categoryFilter.appendChild(option);
     });
+    categoryFilter.value = currentFilterValue;
 
-    categoryFilter.value = currentValue;
+    // Update form dropdown
+    categorySelect.innerHTML = '<option value="">Select category</option>';
+    Array.from(customCategories).sort().forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categorySelect.appendChild(option);
+    });
+    categorySelect.value = currentSelectValue;
 }
 
 // Add custom category
-function addCustomCategory() {
+async function addCustomCategory() {
     const newCategory = newCategoryInput.value.trim();
     if (newCategory && !customCategories.has(newCategory)) {
         customCategories.add(newCategory);
+        await saveBookmarksToStorage();
         updateCategoryDropdowns();
         newCategoryInput.value = '';
+        showSuccessMessage('Category added successfully!');
     } else if (customCategories.has(newCategory)) {
         alert('Category already exists!');
     } else {
