@@ -528,16 +528,21 @@ async function importBookmarks() {
     const format = importFormatSelect.value;
     let importedBookmarks = [];
 
-    if (format === 'json') {
-        try {
-            const text = await file.text();
+    try {
+        const text = await file.text();
+        
+        if (format === 'json' || (format === 'auto' && file.name.endsWith('.json'))) {
             importedBookmarks = JSON.parse(text);
-        } catch (error) {
-            alert('Error importing bookmarks: ' + error.message);
+        } else if (format === 'csv' || (format === 'auto' && file.name.endsWith('.csv'))) {
+            importedBookmarks = parseCSV(text);
+        } else if (format === 'html' || (format === 'auto' && file.name.endsWith('.html'))) {
+            importedBookmarks = parseHTML(text);
+        } else {
+            alert('Unsupported import format.');
             return;
         }
-    } else {
-        alert('Unsupported import format.');
+    } catch (error) {
+        alert('Error importing bookmarks: ' + error.message);
         return;
     }
 
@@ -561,28 +566,139 @@ async function importBookmarks() {
     closeImportModal();
 }
 
+// Parse CSV content
+function parseCSV(csvText) {
+    const lines = csvText.split('\n');
+    const bookmarks = [];
+    
+    // Skip header row
+    for (let i = 1; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (!line) continue;
+        
+        const values = line.split(',').map(v => v.trim().replace(/^"|"$/g, ''));
+        if (values.length >= 2) {
+            const bookmark = {
+                id: generateId(),
+                title: values[0] || 'Untitled',
+                url: values[1] || '',
+                domain: extractDomain(values[1] || ''),
+                tags: values[2] ? values[2].split(';').map(tag => tag.trim()).filter(tag => tag) : [],
+                category: values[3] || '',
+                notes: values[4] || '',
+                dateAdded: new Date().toISOString(),
+                favicon: null
+            };
+            bookmarks.push(bookmark);
+        }
+    }
+    
+    return bookmarks;
+}
+
+// Parse HTML content (basic bookmark export format)
+function parseHTML(htmlText) {
+    const bookmarks = [];
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlText, 'text/html');
+    const links = doc.querySelectorAll('a');
+    
+    links.forEach(link => {
+        const bookmark = {
+            id: generateId(),
+            title: link.textContent.trim() || 'Untitled',
+            url: link.href || '',
+            domain: extractDomain(link.href || ''),
+            tags: [],
+            category: '',
+            notes: '',
+            dateAdded: new Date().toISOString(),
+            favicon: null
+        };
+        bookmarks.push(bookmark);
+    });
+    
+    return bookmarks;
+}
+
 // Export bookmarks
 async function exportBookmarks() {
     const format = exportFormatSelect.value;
-    let data = [];
+    let data = '';
+    let filename = '';
+    let mimeType = '';
 
     if (format === 'json') {
-        data = bookmarks;
+        data = JSON.stringify(bookmarks, null, 2);
+        filename = 'bookmarks.json';
+        mimeType = 'application/json';
+    } else if (format === 'csv') {
+        data = generateCSV();
+        filename = 'bookmarks.csv';
+        mimeType = 'text/csv';
+    } else if (format === 'html') {
+        data = generateHTML();
+        filename = 'bookmarks.html';
+        mimeType = 'text/html';
     } else {
         alert('Unsupported export format.');
         return;
     }
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const blob = new Blob([data], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'bookmarks.json';
+    a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     closeExportModal();
+}
+
+// Generate CSV content
+function generateCSV() {
+    const headers = ['Title', 'URL', 'Tags', 'Category', 'Notes', 'Date Added'];
+    const rows = [headers.join(',')];
+    
+    bookmarks.forEach(bookmark => {
+        const row = [
+            `"${bookmark.title || ''}"`,
+            `"${bookmark.url || ''}"`,
+            `"${(bookmark.tags || []).join(';')}"`,
+            `"${bookmark.category || ''}"`,
+            `"${bookmark.notes || ''}"`,
+            `"${bookmark.dateAdded || ''}"`
+        ];
+        rows.push(row.join(','));
+    });
+    
+    return rows.join('\n');
+}
+
+// Generate HTML content
+function generateHTML() {
+    const html = `<!DOCTYPE NETSCAPE-Bookmark-file-1>
+<!-- This is an automatically generated file.
+     It will be read and overwritten.
+     DO NOT EDIT! -->
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<TITLE>Bookmarks</TITLE>
+<H1>Bookmarks</H1>
+<DL><p>
+    <DT><H3 ADD_DATE="0" LAST_MODIFIED="0">Bookmarks</H3>
+    <DL><p>`;
+    
+    bookmarks.forEach(bookmark => {
+        const date = new Date(bookmark.dateAdded).getTime() / 1000;
+        html += `\n        <DT><A HREF="${bookmark.url}" ADD_DATE="${date}">${bookmark.title}</A>`;
+    });
+    
+    html += `\n    </DL><p>
+</DL><p>`;
+    
+    return html;
 }
 
 // Close modal when clicking outside
