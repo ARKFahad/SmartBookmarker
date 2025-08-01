@@ -1,0 +1,1 @@
+So there are two problem has arised now one is the new category that user are adding is not saved every time I refreshed the new tags will disappear and other major thing is whenever I try to add new bookmark There is an error and the error is This Page says unable to get page information And I am also including a screenshot of that error
