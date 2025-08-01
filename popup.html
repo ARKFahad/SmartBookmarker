@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Bookmarker</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">Smart Bookmarker</h1>
+            <button id="dashboardBtn" class="dashboard-btn">Dashboard</button>
+        </header>
+
+        <!-- Bookmark Form -->
+        <div id="bookmarkForm" class="bookmark-form">
+            <div class="current-page">
+                <h3>Current Page</h3>
+                <div class="page-info">
+                    <div class="page-title" id="pageTitle"></div>
+                    <div class="page-url" id="pageUrl"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tags">Tags (comma separated):</label>
+                <input type="text" id="tags" placeholder="shopping, research, finance">
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <select id="category">
+                    <option value="">Select category</option>
+                    <option value="work">Work</option>
+                    <option value="personal">Personal</option>
+                    <option value="shopping">Shopping</option>
+                    <option value="research">Research</option>
+                    <option value="finance">Finance</option>
+                    <option value="entertainment">Entertainment</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="notes">Notes:</label>
+                <textarea id="notes" placeholder="Add any notes about this bookmark..."></textarea>
+            </div>
+
+            <button id="saveBookmark" class="save-btn">Save Bookmark</button>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" class="dashboard hidden">
+            <div class="dashboard-header">
+                <button id="backBtn" class="back-btn">← Back</button>
+                <h2>Your Bookmarks</h2>
+            </div>
+
+            <div class="filters">
+                <div class="filter-group">
+                    <label for="sortBy">Sort by:</label>
+                    <select id="sortBy">
+                        <option value="date">Date Added</option>
+                        <option value="domain">Website</option>
+                        <option value="category">Category</option>
+                        <option value="title">Title</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="tagFilter">Filter by tag:</label>
+                    <select id="tagFilter">
+                        <option value="">All tags</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label for="categoryFilter">Filter by category:</label>
+                    <select id="categoryFilter">
+                        <option value="">All categories</option>
+                        <option value="work">Work</option>
+                        <option value="personal">Personal</option>
+                        <option value="shopping">Shopping</option>
+                        <option value="research">Research</option>
+                        <option value="finance">Finance</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Search bookmarks...">
+            </div>
+
+            <div id="bookmarksList" class="bookmarks-list">
+                <!-- Bookmarks will be populated here -->
+            </div>
+        </div>
+
+        <!-- Bookmark Details Modal -->
+        <div id="bookmarkModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalTitle"></h3>
+                    <button id="closeModal" class="close-btn">×</button>
+                </div>
+                <div id="modalContent" class="modal-body">
+                    <!-- Modal content will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html> 
