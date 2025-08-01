@@ -42,6 +42,15 @@
                 </select>
             </div>
 
+            <!-- Add Category Section -->
+            <div class="form-group">
+                <label for="newCategory">Add New Category:</label>
+                <div class="add-category-container">
+                    <input type="text" id="newCategory" placeholder="Enter new category name">
+                    <button id="addCategoryBtn" class="add-category-btn">Add</button>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label for="notes">Notes:</label>
                 <textarea id="notes" placeholder="Add any notes about this bookmark..."></textarea>
@@ -55,6 +64,10 @@
             <div class="dashboard-header">
                 <button id="backBtn" class="back-btn">← Back</button>
                 <h2>Your Bookmarks</h2>
+                <div class="dashboard-actions">
+                    <button id="importBtn" class="action-btn">Import</button>
+                    <button id="exportBtn" class="action-btn">Export</button>
+                </div>
             </div>
 
             <div class="filters">
@@ -108,6 +121,63 @@
                 </div>
                 <div id="modalContent" class="modal-body">
                     <!-- Modal content will be populated here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Import Modal -->
+        <div id="importModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Import Bookmarks</h3>
+                    <button id="closeImportModal" class="close-btn">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="import-options">
+                        <div class="import-option">
+                            <label for="importFile">Select file:</label>
+                            <input type="file" id="importFile" accept=".json,.csv,.html">
+                        </div>
+                        <div class="import-option">
+                            <label for="importFormat">Format:</label>
+                            <select id="importFormat">
+                                <option value="auto">Auto-detect</option>
+                                <option value="json">JSON</option>
+                                <option value="csv">CSV</option>
+                                <option value="html">HTML</option>
+                            </select>
+                        </div>
+                        <div class="import-actions">
+                            <button id="importBtn" class="action-btn">Import</button>
+                            <button id="cancelImportBtn" class="action-btn secondary">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Export Modal -->
+        <div id="exportModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Export Bookmarks</h3>
+                    <button id="closeExportModal" class="close-btn">×</button>
+                </div>
+                <div class="modal-body">
+                    <div class="export-options">
+                        <div class="export-option">
+                            <label for="exportFormat">Export format:</label>
+                            <select id="exportFormat">
+                                <option value="json">JSON</option>
+                                <option value="csv">CSV</option>
+                                <option value="html">HTML</option>
+                            </select>
+                        </div>
+                        <div class="export-actions">
+                            <button id="exportBtn" class="action-btn">Export</button>
+                            <button id="cancelExportBtn" class="action-btn secondary">Cancel</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
