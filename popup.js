@@ -2,6 +2,7 @@
 let currentTab = null;
 let bookmarks = [];
 let allTags = new Set();
+let customCategories = new Set(['work', 'personal', 'shopping', 'research', 'finance', 'entertainment', 'other']);
 
 // DOM elements
 const bookmarkForm = document.getElementById('bookmarkForm');
@@ -17,13 +18,32 @@ const categoryFilterSelect = document.getElementById('categoryFilter');
 const bookmarkModal = document.getElementById('bookmarkModal');
 const closeModalBtn = document.getElementById('closeModal');
 
+// New DOM elements for category management and import/export
+const addCategoryBtn = document.getElementById('addCategoryBtn');
+const newCategoryInput = document.getElementById('newCategory');
+const importBtn = document.getElementById('importBtn');
+const exportBtn = document.getElementById('exportBtn');
+const importModal = document.getElementById('importModal');
+const exportModal = document.getElementById('exportModal');
+const closeImportModalBtn = document.getElementById('closeImportModal');
+const closeExportModalBtn = document.getElementById('closeExportModal');
+const importFileInput = document.getElementById('importFile');
+const importFormatSelect = document.getElementById('importFormat');
+const exportFormatSelect = document.getElementById('exportFormat');
+const importActionBtn = document.getElementById('importBtn');
+const exportActionBtn = document.getElementById('exportBtn');
+const cancelImportBtn = document.getElementById('cancelImportBtn');
+const cancelExportBtn = document.getElementById('cancelExportBtn');
+
 // Initialize the extension
 document.addEventListener('DOMContentLoaded', async () => {
     await loadBookmarks();
+    await loadCustomCategories();
     await getCurrentTab();
     updateCurrentPageInfo();
     setupEventListeners();
     updateTagFilter();
+    updateCategoryDropdowns();
 });
 
 // Event listeners setup
@@ -36,6 +56,37 @@ function setupEventListeners() {
     tagFilterSelect.addEventListener('change', filterBookmarks);
     categoryFilterSelect.addEventListener('change', filterBookmarks);
     closeModalBtn.addEventListener('click', closeModal);
+    
+    // Category management
+    addCategoryBtn.addEventListener('click', addCustomCategory);
+    newCategoryInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            addCustomCategory();
+        }
+    });
+    
+    // Import/Export
+    importBtn.addEventListener('click', showImportModal);
+    exportBtn.addEventListener('click', showExportModal);
+    closeImportModalBtn.addEventListener('click', closeImportModal);
+    closeExportModalBtn.addEventListener('click', closeExportModal);
+    importActionBtn.addEventListener('click', importBookmarks);
+    exportActionBtn.addEventListener('click', exportBookmarks);
+    cancelImportBtn.addEventListener('click', closeImportModal);
+    cancelExportBtn.addEventListener('click', closeExportModal);
+    
+    // Close modals when clicking outside
+    importModal.addEventListener('click', (e) => {
+        if (e.target === importModal) {
+            closeImportModal();
+        }
+    });
+    
+    exportModal.addEventListener('click', (e) => {
+        if (e.target === exportModal) {
+            closeExportModal();
+        }
+    });
 }
 
 // Get current tab information
@@ -146,12 +197,25 @@ async function loadBookmarks() {
     }
 }
 
+// Load custom categories from storage
+async function loadCustomCategories() {
+    try {
+        const result = await chrome.storage.local.get(['customCategories']);
+        if (result.customCategories) {
+            customCategories = new Set(result.customCategories);
+        }
+    } catch (error) {
+        console.error('Error loading custom categories:', error);
+    }
+}
+
 // Save bookmarks to storage
 async function saveBookmarksToStorage() {
     try {
         await chrome.storage.local.set({
             bookmarks: bookmarks,
-            allTags: Array.from(allTags)
+            allTags: Array.from(allTags),
+            customCategories: Array.from(customCategories)
         });
     } catch (error) {
         console.error('Error saving bookmarks:', error);
@@ -387,6 +451,125 @@ function updateTagFilter() {
     });
     
     tagFilter.value = currentValue;
+}
+
+// Update category dropdowns
+function updateCategoryDropdowns() {
+    const categoryFilter = document.getElementById('categoryFilter');
+    const currentValue = categoryFilter.value;
+
+    categoryFilter.innerHTML = '<option value="">All categories</option>';
+
+    Array.from(customCategories).sort().forEach(category => {
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        categoryFilter.appendChild(option);
+    });
+
+    categoryFilter.value = currentValue;
+}
+
+// Add custom category
+function addCustomCategory() {
+    const newCategory = newCategoryInput.value.trim();
+    if (newCategory && !customCategories.has(newCategory)) {
+        customCategories.add(newCategory);
+        updateCategoryDropdowns();
+        newCategoryInput.value = '';
+    } else if (customCategories.has(newCategory)) {
+        alert('Category already exists!');
+    } else {
+        alert('Please enter a valid category name.');
+    }
+}
+
+// Show import modal
+function showImportModal() {
+    importModal.classList.remove('hidden');
+}
+
+// Close import modal
+function closeImportModal() {
+    importModal.classList.add('hidden');
+}
+
+// Show export modal
+function showExportModal() {
+    exportModal.classList.remove('hidden');
+}
+
+// Close export modal
+function closeExportModal() {
+    exportModal.classList.add('hidden');
+}
+
+// Import bookmarks
+async function importBookmarks() {
+    const file = importFileInput.files[0];
+    if (!file) {
+        alert('Please select a file to import.');
+        return;
+    }
+
+    const format = importFormatSelect.value;
+    let importedBookmarks = [];
+
+    if (format === 'json') {
+        try {
+            const text = await file.text();
+            importedBookmarks = JSON.parse(text);
+        } catch (error) {
+            alert('Error importing bookmarks: ' + error.message);
+            return;
+        }
+    } else {
+        alert('Unsupported import format.');
+        return;
+    }
+
+    if (importedBookmarks && Array.isArray(importedBookmarks)) {
+        const confirmed = confirm(`Are you sure you want to import ${importedBookmarks.length} bookmarks? This will overwrite existing bookmarks.`);
+        if (confirmed) {
+            bookmarks = importedBookmarks;
+            allTags = new Set(); // Clear existing tags
+            importedBookmarks.forEach(bookmark => {
+                if (bookmark.tags) {
+                    bookmark.tags.forEach(tag => allTags.add(tag));
+                }
+            });
+            await saveBookmarksToStorage();
+            renderBookmarks();
+            alert('Bookmarks imported successfully!');
+        }
+    } else {
+        alert('Invalid import file format or content.');
+    }
+    closeImportModal();
+}
+
+// Export bookmarks
+async function exportBookmarks() {
+    const format = exportFormatSelect.value;
+    let data = [];
+
+    if (format === 'json') {
+        data = bookmarks;
+    } else {
+        alert('Unsupported export format.');
+        return;
+    }
+
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bookmarks.json';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    closeExportModal();
 }
 
 // Close modal when clicking outside
