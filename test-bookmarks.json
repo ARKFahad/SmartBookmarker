@@ -1,0 +1,35 @@
+[
+  {
+    "id": "test1",
+    "title": "Google",
+    "url": "https://www.google.com",
+    "domain": "google.com",
+    "tags": ["search", "tools"],
+    "category": "work",
+    "notes": "Main search engine",
+    "dateAdded": "2024-01-01T00:00:00.000Z",
+    "favicon": null
+  },
+  {
+    "id": "test2",
+    "title": "GitHub",
+    "url": "https://github.com",
+    "domain": "github.com",
+    "tags": ["development", "coding"],
+    "category": "work",
+    "notes": "Code repository platform",
+    "dateAdded": "2024-01-02T00:00:00.000Z",
+    "favicon": null
+  },
+  {
+    "id": "test3",
+    "title": "Stack Overflow",
+    "url": "https://stackoverflow.com",
+    "domain": "stackoverflow.com",
+    "tags": ["programming", "help"],
+    "category": "research",
+    "notes": "Programming Q&A site",
+    "dateAdded": "2024-01-03T00:00:00.000Z",
+    "favicon": null
+  }
+] 
