@@ -21,8 +21,8 @@ const closeModalBtn = document.getElementById('closeModal');
 // New DOM elements for category management and import/export
 const addCategoryBtn = document.getElementById('addCategoryBtn');
 const newCategoryInput = document.getElementById('newCategory');
-const importBtn = document.getElementById('importBtn');
-const exportBtn = document.getElementById('exportBtn');
+const dashboardImportBtn = document.getElementById('dashboardImportBtn');
+const dashboardExportBtn = document.getElementById('dashboardExportBtn');
 const importModal = document.getElementById('importModal');
 const exportModal = document.getElementById('exportModal');
 const closeImportModalBtn = document.getElementById('closeImportModal');
@@ -30,8 +30,8 @@ const closeExportModalBtn = document.getElementById('closeExportModal');
 const importFileInput = document.getElementById('importFile');
 const importFormatSelect = document.getElementById('importFormat');
 const exportFormatSelect = document.getElementById('exportFormat');
-const importActionBtn = document.getElementById('importBtn');
-const exportActionBtn = document.getElementById('exportBtn');
+const modalImportBtn = document.getElementById('modalImportBtn');
+const modalExportBtn = document.getElementById('modalExportBtn');
 const cancelImportBtn = document.getElementById('cancelImportBtn');
 const cancelExportBtn = document.getElementById('cancelExportBtn');
 
@@ -66,12 +66,12 @@ function setupEventListeners() {
     });
     
     // Import/Export
-    importBtn.addEventListener('click', showImportModal);
-    exportBtn.addEventListener('click', showExportModal);
+    dashboardImportBtn.addEventListener('click', showImportModal);
+    dashboardExportBtn.addEventListener('click', showExportModal);
     closeImportModalBtn.addEventListener('click', closeImportModal);
     closeExportModalBtn.addEventListener('click', closeExportModal);
-    importActionBtn.addEventListener('click', importBookmarks);
-    exportActionBtn.addEventListener('click', exportBookmarks);
+    modalImportBtn.addEventListener('click', importBookmarks);
+    modalExportBtn.addEventListener('click', exportBookmarks);
     cancelImportBtn.addEventListener('click', closeImportModal);
     cancelExportBtn.addEventListener('click', closeExportModal);
     

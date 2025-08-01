@@ -15,6 +15,12 @@ A smart and intuitive Chrome extension that transforms chaotic bookmarking into 
 - Filter and search bookmarks by tags
 - Tag-based organization for quick retrieval
 
+### 📂 **Personalized Category Management**
+- Add custom categories for personalized organization
+- Categories are saved and available for future use
+- Dynamic category dropdowns that update automatically
+- Persistent storage of user-defined categories
+
 ### 📊 **Smart Dashboard**
 - Centralized dashboard for all your bookmarks
 - Domain-based grouping (multiple pages from same site grouped together)
@@ -25,6 +31,12 @@ A smart and intuitive Chrome extension that transforms chaotic bookmarking into 
 - Real-time search across titles, URLs, tags, and notes
 - Filter by tags and categories
 - Multiple sorting options for different organizational needs
+
+### 📤 **Import & Export Functionality**
+- Export bookmarks in multiple formats: JSON, CSV, HTML
+- Import bookmarks from JSON, CSV, and HTML files
+- Auto-detection of file format during import
+- Backup and restore your bookmark collection
 
 ### 📱 **Modern UI/UX**
 - Clean, modern interface with gradient design
@@ -68,9 +80,16 @@ A smart and intuitive Chrome extension that transforms chaotic bookmarking into 
 2. Click the Smart Bookmarker extension icon in your toolbar
 3. The current page information will be automatically filled
 4. Add tags (comma-separated) for better organization
-5. Select a category from the dropdown
+5. Select a category from the dropdown or add a new custom category
 6. Add optional notes about the bookmark
 7. Click "Save Bookmark"
+
+### Adding Custom Categories
+1. In the bookmark form, scroll to the "Add New Category" section
+2. Enter your desired category name in the input field
+3. Click "Add" or press Enter
+4. The new category will be saved and available for future use
+5. Categories are automatically added to both the form and filter dropdowns
 
 ### Managing Bookmarks
 1. Click the extension icon and then click "Dashboard"
@@ -78,6 +97,19 @@ A smart and intuitive Chrome extension that transforms chaotic bookmarking into 
 3. Use the search bar to find specific bookmarks
 4. Use filters to narrow down by tags or categories
 5. Click on any bookmark to view details or open it
+
+### Importing Bookmarks
+1. In the dashboard, click the "Import" button
+2. Select your bookmark file (JSON, CSV, or HTML format)
+3. Choose the format or let it auto-detect
+4. Click "Import" to add the bookmarks to your collection
+5. Existing bookmarks will be replaced with the imported ones
+
+### Exporting Bookmarks
+1. In the dashboard, click the "Export" button
+2. Choose your preferred format: JSON, CSV, or HTML
+3. Click "Export" to download your bookmarks
+4. The file will be saved to your default download location
 
 ### Domain Grouping
 - Multiple bookmarks from the same website are automatically grouped
@@ -103,6 +135,18 @@ smart-bookmarker/
 
 ## Features in Detail
 
+### Personalized Category Management
+- **Custom Categories**: Add your own categories beyond the default ones
+- **Persistent Storage**: Categories are saved and available across sessions
+- **Dynamic Updates**: Category dropdowns update automatically when new categories are added
+- **User-Friendly**: Simple input field with validation and feedback
+
+### Import/Export System
+- **Multiple Formats**: Support for JSON, CSV, and HTML formats
+- **Auto-Detection**: Automatically detects file format during import
+- **Flexible Export**: Choose your preferred format for export
+- **Data Integrity**: Maintains all bookmark metadata during import/export
+
 ### Bookmark Merging
 The extension intelligently groups multiple pages from the same domain under a single entry. For example, if you bookmark multiple product pages from `example.com`, they'll appear as one group with a count showing how many pages you've saved from that site.
 
@@ -123,6 +167,18 @@ The extension intelligently groups multiple pages from the same domain under a s
 - Real-time filtering as you type
 - Combined with tag and category filters for precise results
 
+## Supported File Formats
+
+### Import Formats
+- **JSON**: Full bookmark data with all metadata
+- **CSV**: Simple format with columns for title, URL, tags, category, notes, date
+- **HTML**: Basic bookmark export format compatible with browser bookmarks
+
+### Export Formats
+- **JSON**: Complete bookmark data for backup and transfer
+- **CSV**: Spreadsheet-friendly format for analysis
+- **HTML**: Standard bookmark format for browser compatibility
+
 ## Technical Details
 
 ### Permissions Used
@@ -133,6 +189,7 @@ The extension intelligently groups multiple pages from the same domain under a s
 
 ### Data Storage
 - All bookmark data is stored locally using Chrome's storage API
+- Custom categories are persisted across sessions
 - No external servers or data collection
 - Your bookmarks remain private and secure
 
