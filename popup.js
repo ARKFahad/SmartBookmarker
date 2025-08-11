@@ -131,6 +131,12 @@ function setupEventListeners() {
         });
     }
     
+    // Reset storage button
+    const resetStorageBtn = document.getElementById('resetStorageBtn');
+    if (resetStorageBtn) {
+        resetStorageBtn.addEventListener('click', resetStorage);
+    }
+    
     // Close modals when clicking outside
     importModal.addEventListener('click', (e) => {
         if (e.target === importModal) {
