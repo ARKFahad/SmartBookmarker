@@ -137,6 +137,21 @@ function setupEventListeners() {
         resetStorageBtn.addEventListener('click', resetStorage);
     }
     
+    // Run all tests button
+    const runAllTestsBtn = document.getElementById('runAllTestsBtn');
+    if (runAllTestsBtn) {
+        runAllTestsBtn.addEventListener('click', async () => {
+            const results = await runAllDebugTests();
+            const allPassed = Object.values(results).every(result => result === true);
+            
+            if (allPassed) {
+                alert('All debug tests passed! Check console for detailed results.');
+            } else {
+                alert('Some debug tests failed! Check console for detailed results.');
+            }
+        });
+    }
+    
     // Close modals when clicking outside
     importModal.addEventListener('click', (e) => {
         if (e.target === importModal) {
@@ -936,8 +951,63 @@ async function resetStorage() {
     }
 }
 
+// Comprehensive debugging function
+async function runAllDebugTests() {
+    console.log('🔍 Running comprehensive debug tests...');
+    console.log('=====================================');
+    
+    const results = {
+        permissions: false,
+        simpleStorage: false,
+        fullStorage: false,
+        currentTab: false
+    };
+    
+    try {
+        // Test 1: Permissions
+        console.log('\n1️⃣ Testing permissions...');
+        results.permissions = await checkPermissions();
+        
+        // Test 2: Simple storage
+        console.log('\n2️⃣ Testing simple storage...');
+        results.simpleStorage = await simpleStorageTest();
+        
+        // Test 3: Full storage
+        console.log('\n3️⃣ Testing full storage...');
+        results.fullStorage = await testStorage();
+        
+        // Test 4: Current tab access
+        console.log('\n4️⃣ Testing current tab access...');
+        try {
+            await getCurrentTab();
+            results.currentTab = currentTab !== null;
+            console.log('Current tab result:', currentTab);
+        } catch (error) {
+            console.error('Current tab test failed:', error);
+        }
+        
+        // Summary
+        console.log('\n📊 DEBUG TEST SUMMARY:');
+        console.log('=====================================');
+        console.log(`Permissions: ${results.permissions ? '✅ PASS' : '❌ FAIL'}`);
+        console.log(`Simple Storage: ${results.simpleStorage ? '✅ PASS' : '❌ FAIL'}`);
+        console.log(`Full Storage: ${results.fullStorage ? '✅ PASS' : '❌ FAIL'}`);
+        console.log(`Current Tab: ${results.currentTab ? '✅ PASS' : '❌ FAIL'}`);
+        
+        const allPassed = Object.values(results).every(result => result === true);
+        console.log(`\nOverall Status: ${allPassed ? '✅ ALL TESTS PASSED' : '❌ SOME TESTS FAILED'}`);
+        
+        return results;
+        
+    } catch (error) {
+        console.error('❌ Debug test suite failed:', error);
+        return results;
+    }
+}
+
 // Add test function to window for debugging
 window.testStorage = testStorage;
 window.simpleStorageTest = simpleStorageTest;
 window.checkPermissions = checkPermissions;
-window.resetStorage = resetStorage; 
+window.resetStorage = resetStorage;
+window.runAllDebugTests = runAllDebugTests; 
