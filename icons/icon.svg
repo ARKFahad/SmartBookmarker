@@ -1,23 +1,16 @@
 <svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
   <!-- Background circle -->
-  <circle cx="64" cy="64" r="60" fill="url(#grad1)" stroke="#fff" stroke-width="4"/>
+  <circle cx="64" cy="64" r="60" fill="#667eea" stroke="#5a6fd8" stroke-width="4"/>
   
-  <!-- Bookmark icon -->
-  <path d="M40 20 L40 80 L64 60 L88 80 L88 20 Z" fill="#fff" stroke="#fff" stroke-width="2"/>
+  <!-- Bookmark shape -->
+  <path d="M40 20 L40 90 L64 70 L88 90 L88 20 Z" fill="white" stroke="#5a6fd8" stroke-width="2"/>
   
-  <!-- Smart indicator dots -->
-  <circle cx="50" cy="45" r="3" fill="#fff" opacity="0.8"/>
-  <circle cx="58" cy="45" r="3" fill="#fff" opacity="0.8"/>
-  <circle cx="66" cy="45" r="3" fill="#fff" opacity="0.8"/>
+  <!-- Smart elements -->
+  <circle cx="64" cy="45" r="3" fill="#667eea"/>
+  <circle cx="64" cy="55" r="2" fill="#667eea"/>
+  <circle cx="64" cy="62" r="1.5" fill="#667eea"/>
   
-  <!-- Tag indicator -->
-  <rect x="70" y="35" width="12" height="6" rx="3" fill="#fff" opacity="0.9"/>
-  <text x="76" y="39" font-family="Arial" font-size="4" fill="#667eea" text-anchor="middle">#</text>
+  <!-- Tag icon -->
+  <rect x="70" y="35" width="12" height="8" rx="2" fill="white" stroke="#5a6fd8" stroke-width="1"/>
+  <text x="76" y="40" font-family="Arial, sans-serif" font-size="6" fill="#667eea" text-anchor="middle">#</text>
 </svg> 

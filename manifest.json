@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Smart Bookmarker",
   "version": "1.0.0",
-  "description": "A smart bookmarking extension with tagging and organization features",
+  "description": "A smart bookmarking extension with tagging, categorization, and organization features. Save, organize, and find your bookmarks with ease.",
   "permissions": [
     "bookmarks",
     "storage",
@@ -11,12 +11,14 @@
   ],
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Smart Bookmarker"
+    "default_title": "Smart Bookmarker - Save and organize your bookmarks"
   },
   "background": {
     "service_worker": "background.js"
   },
   "icons": {
+    "16": "icons/icon.svg",
+    "48": "icons/icon.svg",
     "128": "icons/icon.svg"
   },
   "content_scripts": [
@@ -24,5 +26,8 @@
       "matches": ["<all_urls>"],
       "js": ["content.js"]
     }
-  ]
+  ],
+  "homepage_url": "https://github.com/yourusername/smart-bookmarker",
+  "author": "Your Name",
+  "minimum_chrome_version": "88"
 } 
