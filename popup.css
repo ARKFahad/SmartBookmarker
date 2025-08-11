@@ -522,6 +522,32 @@ body {
     min-width: 60px;
 }
 
+.dashboard-actions .action-btn.secondary {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.dashboard-actions .action-btn.secondary:hover {
+    background: #5a6268;
+    border-color: #545b62;
+}
+
+/* Debug section styling */
+.debug-section {
+    margin-top: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+}
+
+.debug-section h4 {
+    margin-bottom: 10px;
+    color: #856404;
+    font-size: 14px;
+}
+
 /* Import/Export Modal Styles */
 .import-options,
 .export-options {
