@@ -1,18 +1,25 @@
 // Background service worker for Smart Bookmarker extension
 
 // Listen for extension installation
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
     console.log('Smart Bookmarker extension installed');
     
-    // Initialize storage with default values
-    chrome.storage.local.get(['bookmarks', 'allTags'], (result) => {
-        if (!result.bookmarks) {
-            chrome.storage.local.set({
-                bookmarks: [],
-                allTags: []
-            });
-        }
-    });
+    try {
+        // Initialize storage with default values
+        const result = await chrome.storage.local.get(['bookmarks', 'allTags', 'customCategories']);
+        const defaultCategories = ['work', 'personal', 'shopping', 'research', 'finance', 'entertainment', 'other'];
+        
+        const storageData = {
+            bookmarks: result.bookmarks || [],
+            allTags: result.allTags || [],
+            customCategories: result.customCategories || defaultCategories
+        };
+        
+        await chrome.storage.local.set(storageData);
+        console.log('Storage initialized successfully:', storageData);
+    } catch (error) {
+        console.error('Error initializing storage:', error);
+    }
 });
 
 // Listen for messages from popup or content scripts

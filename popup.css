@@ -66,6 +66,10 @@ body {
     margin-bottom: 8px;
 }
 
+.page-info {
+    position: relative;
+}
+
 .page-title {
     font-weight: 600;
     font-size: 14px;
@@ -77,6 +81,34 @@ body {
     font-size: 12px;
     color: #666;
     word-break: break-all;
+    padding-right: 30px;
+}
+
+.refresh-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #667eea;
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.refresh-btn:hover {
+    background: #5a6fd8;
+    transform: scale(1.05);
+}
+
+.refresh-btn:active {
+    transform: scale(0.95);
 }
 
 .form-group {
@@ -481,22 +513,13 @@ body {
 .dashboard-actions {
     display: flex;
     gap: 8px;
-    margin-left: auto;
+    flex-wrap: wrap;
 }
 
 .dashboard-actions .action-btn {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
     padding: 6px 12px;
-    border-radius: 6px;
-    cursor: pointer;
-    font-size: 12px;
-    transition: all 0.2s;
-}
-
-.dashboard-actions .action-btn:hover {
-    background: rgba(255, 255, 255, 0.3);
+    font-size: 11px;
+    min-width: 60px;
 }
 
 /* Import/Export Modal Styles */
@@ -609,4 +632,14 @@ body {
 
 .bookmarks-list::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
+} 
+
+.action-btn.secondary {
+    background: #6c757d;
+    border-color: #6c757d;
+}
+
+.action-btn.secondary:hover {
+    background: #5a6268;
+    border-color: #545b62;
 } 

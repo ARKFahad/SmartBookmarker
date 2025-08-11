@@ -7,8 +7,7 @@
     "bookmarks",
     "storage",
     "activeTab",
-    "tabs",
-    "storage"
+    "tabs"
   ],
   "action": {
     "default_popup": "popup.html",

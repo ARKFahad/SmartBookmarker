@@ -44,6 +44,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
     updateTagFilter();
     updateCategoryDropdowns();
+    
+    // If we couldn't get the current tab, try again after a short delay
+    if (!currentTab) {
+        setTimeout(async () => {
+            await getCurrentTab();
+            updateCurrentPageInfo();
+        }, 500);
+    }
 });
 
 // Event listeners setup
@@ -56,6 +64,15 @@ function setupEventListeners() {
     tagFilterSelect.addEventListener('change', filterBookmarks);
     categoryFilterSelect.addEventListener('change', filterBookmarks);
     closeModalBtn.addEventListener('click', closeModal);
+    
+    // Refresh page information button
+    const refreshPageInfoBtn = document.getElementById('refreshPageInfo');
+    if (refreshPageInfoBtn) {
+        refreshPageInfoBtn.addEventListener('click', async () => {
+            await getCurrentTab();
+            updateCurrentPageInfo();
+        });
+    }
     
     // Category management
     addCategoryBtn.addEventListener('click', addCustomCategory);
@@ -75,6 +92,45 @@ function setupEventListeners() {
     cancelImportBtn.addEventListener('click', closeImportModal);
     cancelExportBtn.addEventListener('click', closeExportModal);
     
+    // Test storage button
+    const testStorageBtn = document.getElementById('testStorageBtn');
+    if (testStorageBtn) {
+        testStorageBtn.addEventListener('click', async () => {
+            const success = await testStorage();
+            if (success) {
+                alert('Storage test passed! Check console for details.');
+            } else {
+                alert('Storage test failed! Check console for details.');
+            }
+        });
+    }
+    
+    // Simple test storage button
+    const simpleTestBtn = document.getElementById('simpleTestBtn');
+    if (simpleTestBtn) {
+        simpleTestBtn.addEventListener('click', async () => {
+            const success = await simpleStorageTest();
+            if (success) {
+                alert('Simple storage test passed! Check console for details.');
+            } else {
+                alert('Simple storage test failed! Check console for details.');
+            }
+        });
+    }
+    
+    // Check permissions button
+    const checkPermissionsBtn = document.getElementById('checkPermissionsBtn');
+    if (checkPermissionsBtn) {
+        checkPermissionsBtn.addEventListener('click', async () => {
+            const success = await checkPermissions();
+            if (success) {
+                alert('All permissions check passed! Check console for details.');
+            } else {
+                alert('Some permissions check failed! Check console for details.');
+            }
+        });
+    }
+    
     // Close modals when clicking outside
     importModal.addEventListener('click', (e) => {
         if (e.target === importModal) {
@@ -92,16 +148,32 @@ function setupEventListeners() {
 // Get current tab information
 async function getCurrentTab() {
     try {
+        console.log('Attempting to get current tab...');
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        currentTab = tab;
+        console.log('Retrieved tab:', tab);
+        
+        if (tab && tab.url && tab.url.startsWith('http')) {
+            currentTab = tab;
+            console.log('Current tab set successfully:', currentTab);
+        } else {
+            console.warn('Current tab is not a valid HTTP page:', tab);
+            currentTab = null;
+        }
     } catch (error) {
         console.error('Error getting current tab:', error);
+        currentTab = null;
     }
 }
 
 // Update current page information in the form
 function updateCurrentPageInfo() {
-    if (!currentTab) return;
+    if (!currentTab) {
+        const pageTitle = document.getElementById('pageTitle');
+        const pageUrl = document.getElementById('pageUrl');
+        pageTitle.textContent = 'Unable to get page information';
+        pageUrl.textContent = 'Please refresh the extension or navigate to a valid webpage';
+        return;
+    }
     
     const pageTitle = document.getElementById('pageTitle');
     const pageUrl = document.getElementById('pageUrl');
@@ -112,8 +184,8 @@ function updateCurrentPageInfo() {
 
 // Save bookmark functionality
 async function saveBookmark() {
-    if (!currentTab) {
-        alert('Unable to get current page information');
+    if (!currentTab || !currentTab.url || !currentTab.url.startsWith('http')) {
+        alert('Unable to get current page information. Please make sure you are on a valid webpage and refresh the extension.');
         return;
     }
 
@@ -123,7 +195,7 @@ async function saveBookmark() {
 
     const bookmark = {
         id: generateId(),
-        title: currentTab.title,
+        title: currentTab.title || 'Untitled',
         url: currentTab.url,
         domain: extractDomain(currentTab.url),
         tags: tags ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
@@ -201,11 +273,20 @@ async function loadBookmarks() {
 async function loadCustomCategories() {
     try {
         const result = await chrome.storage.local.get(['customCategories']);
-        if (result.customCategories) {
+        if (result.customCategories && result.customCategories.length > 0) {
             customCategories = new Set(result.customCategories);
+        } else {
+            // Initialize with default categories if none exist
+            const defaultCategories = ['work', 'personal', 'shopping', 'research', 'finance', 'entertainment', 'other'];
+            customCategories = new Set(defaultCategories);
+            // Save default categories to storage
+            await chrome.storage.local.set({ customCategories: defaultCategories });
         }
     } catch (error) {
         console.error('Error loading custom categories:', error);
+        // Fallback to default categories
+        const defaultCategories = ['work', 'personal', 'shopping', 'research', 'finance', 'entertainment', 'other'];
+        customCategories = new Set(defaultCategories);
     }
 }
 
@@ -486,6 +567,7 @@ async function addCustomCategory() {
     const newCategory = newCategoryInput.value.trim();
     if (newCategory && !customCategories.has(newCategory)) {
         customCategories.add(newCategory);
+        // Save immediately to storage
         await saveBookmarksToStorage();
         updateCategoryDropdowns();
         newCategoryInput.value = '';
@@ -707,3 +789,149 @@ bookmarkModal.addEventListener('click', (e) => {
         closeModal();
     }
 }); 
+
+// Simple storage test for basic functionality
+async function simpleStorageTest() {
+    try {
+        console.log('Running simple storage test...');
+        
+        // Test 1: Basic get/set
+        await chrome.storage.local.set({ simpleTest: 'hello' });
+        const result = await chrome.storage.local.get(['simpleTest']);
+        
+        if (result.simpleTest === 'hello') {
+            console.log('✅ Basic storage test passed');
+            await chrome.storage.local.remove(['simpleTest']);
+            return true;
+        } else {
+            console.log('❌ Basic storage test failed:', result);
+            return false;
+        }
+    } catch (error) {
+        console.error('❌ Simple storage test failed:', error);
+        return false;
+    }
+}
+
+// Test storage functionality
+async function testStorage() {
+    try {
+        console.log('Testing storage functionality...');
+        
+        // First, test if we can access storage at all
+        console.log('Testing storage access...');
+        const testAccess = await chrome.storage.local.get(['test']);
+        console.log('Storage access test result:', testAccess);
+        
+        // Test saving
+        console.log('Testing data saving...');
+        const testData = {
+            bookmarks: [{ id: 'test', title: 'Test', url: 'https://test.com' }],
+            allTags: ['test'],
+            customCategories: ['test-category']
+        };
+        
+        await chrome.storage.local.set(testData);
+        console.log('Test data saved successfully');
+        
+        // Test loading
+        console.log('Testing data loading...');
+        const result = await chrome.storage.local.get(['bookmarks', 'allTags', 'customCategories']);
+        console.log('Test data loaded:', result);
+        
+        // Verify the data was saved correctly
+        if (result.bookmarks && result.allTags && result.customCategories) {
+            console.log('All test data verified successfully');
+        } else {
+            console.warn('Some test data missing:', result);
+        }
+        
+        // Clean up test data
+        console.log('Cleaning up test data...');
+        await chrome.storage.local.remove(['bookmarks', 'allTags', 'customCategories']);
+        console.log('Test data cleaned up');
+        
+        return true;
+    } catch (error) {
+        console.error('Storage test failed with error:', error);
+        console.error('Error name:', error.name);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        
+        // Check if it's a permissions issue
+        if (error.message && error.message.includes('permission')) {
+            console.error('This appears to be a permissions issue');
+        }
+        
+        // Check if it's a storage quota issue
+        if (error.message && error.message.includes('quota')) {
+            console.error('This appears to be a storage quota issue');
+        }
+        
+        return false;
+    }
+}
+
+// Check extension permissions
+async function checkPermissions() {
+    try {
+        console.log('Checking extension permissions...');
+        
+        // Check if we can access storage
+        const storageTest = await chrome.storage.local.get(['permissionTest']);
+        console.log('✅ Storage permission: OK');
+        
+        // Check if we can access tabs
+        const tabsTest = await chrome.tabs.query({ active: true, currentWindow: true });
+        console.log('✅ Tabs permission: OK');
+        
+        // Check if we can access bookmarks
+        const bookmarksTest = await chrome.bookmarks.getTree();
+        console.log('✅ Bookmarks permission: OK');
+        
+        return true;
+    } catch (error) {
+        console.error('❌ Permission check failed:', error);
+        return false;
+    }
+}
+
+// Reset storage to default values
+async function resetStorage() {
+    try {
+        if (confirm('This will reset all bookmarks, tags, and custom categories to default values. Are you sure?')) {
+            console.log('Resetting storage to default values...');
+            
+            const defaultCategories = ['work', 'personal', 'shopping', 'research', 'finance', 'entertainment', 'other'];
+            const resetData = {
+                bookmarks: [],
+                allTags: [],
+                customCategories: defaultCategories
+            };
+            
+            await chrome.storage.local.set(resetData);
+            
+            // Update local variables
+            bookmarks = [];
+            allTags = new Set();
+            customCategories = new Set(defaultCategories);
+            
+            // Update UI
+            updateTagFilter();
+            updateCategoryDropdowns();
+            renderBookmarks();
+            
+            alert('Storage reset successfully!');
+            console.log('Storage reset completed');
+        }
+    } catch (error) {
+        console.error('Error resetting storage:', error);
+        alert('Error resetting storage: ' + error.message);
+    }
+}
+
+// Add test function to window for debugging
+window.testStorage = testStorage;
+window.simpleStorageTest = simpleStorageTest;
+window.checkPermissions = checkPermissions;
+window.resetStorage = resetStorage; 
