@@ -17,6 +17,19 @@ chrome.runtime.onInstalled.addListener(async () => {
         
         await chrome.storage.local.set(storageData);
         console.log('Storage initialized successfully:', storageData);
+        
+        // Create context menu for quick bookmarking
+        try {
+            chrome.contextMenus.create({
+                id: 'smartBookmark',
+                title: 'Add to Smart Bookmarker',
+                contexts: ['page', 'link']
+            });
+            console.log('Context menu created successfully');
+        } catch (contextError) {
+            console.warn('Context menu creation failed:', contextError);
+        }
+        
     } catch (error) {
         console.error('Error initializing storage:', error);
     }
@@ -110,25 +123,10 @@ async function handleDeleteBookmark(bookmarkId, sendResponse) {
     }
 }
 
-// Context menu for quick bookmarking
-chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
-        id: 'smartBookmark',
-        title: 'Add to Smart Bookmarker',
-        contexts: ['page', 'link']
-    });
-});
-
 // Handle context menu clicks
 chrome.contextMenus.onClicked.addListener((info, tab) => {
     if (info.menuItemId === 'smartBookmark') {
         // Open popup with pre-filled data
         chrome.action.openPopup();
     }
-});
-
-// Handle extension icon clicks
-chrome.action.onClicked.addListener((tab) => {
-    // This will open the popup automatically due to manifest configuration
-    console.log('Extension icon clicked');
 }); 
