@@ -44,6 +44,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupEventListeners();
     updateTagFilter();
     updateCategoryDropdowns();
+    
+    // If we couldn't get the current tab, try again after a short delay
+    if (!currentTab) {
+        setTimeout(async () => {
+            await getCurrentTab();
+            updateCurrentPageInfo();
+        }, 500);
+    }
 });
 
 // Event listeners setup
@@ -56,6 +64,15 @@ function setupEventListeners() {
     tagFilterSelect.addEventListener('change', filterBookmarks);
     categoryFilterSelect.addEventListener('change', filterBookmarks);
     closeModalBtn.addEventListener('click', closeModal);
+    
+    // Refresh page information button
+    const refreshPageInfoBtn = document.getElementById('refreshPageInfo');
+    if (refreshPageInfoBtn) {
+        refreshPageInfoBtn.addEventListener('click', async () => {
+            await getCurrentTab();
+            updateCurrentPageInfo();
+        });
+    }
     
     // Category management
     addCategoryBtn.addEventListener('click', addCustomCategory);
@@ -92,16 +109,32 @@ function setupEventListeners() {
 // Get current tab information
 async function getCurrentTab() {
     try {
+        console.log('Attempting to get current tab...');
         const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        currentTab = tab;
+        console.log('Retrieved tab:', tab);
+        
+        if (tab && tab.url && tab.url.startsWith('http')) {
+            currentTab = tab;
+            console.log('Current tab set successfully:', currentTab);
+        } else {
+            console.warn('Current tab is not a valid HTTP page:', tab);
+            currentTab = null;
+        }
     } catch (error) {
         console.error('Error getting current tab:', error);
+        currentTab = null;
     }
 }
 
 // Update current page information in the form
 function updateCurrentPageInfo() {
-    if (!currentTab) return;
+    if (!currentTab) {
+        const pageTitle = document.getElementById('pageTitle');
+        const pageUrl = document.getElementById('pageUrl');
+        pageTitle.textContent = 'Unable to get page information';
+        pageUrl.textContent = 'Please refresh the extension or navigate to a valid webpage';
+        return;
+    }
     
     const pageTitle = document.getElementById('pageTitle');
     const pageUrl = document.getElementById('pageUrl');
@@ -112,8 +145,8 @@ function updateCurrentPageInfo() {
 
 // Save bookmark functionality
 async function saveBookmark() {
-    if (!currentTab) {
-        alert('Unable to get current page information');
+    if (!currentTab || !currentTab.url || !currentTab.url.startsWith('http')) {
+        alert('Unable to get current page information. Please make sure you are on a valid webpage and refresh the extension.');
         return;
     }
 
@@ -123,7 +156,7 @@ async function saveBookmark() {
 
     const bookmark = {
         id: generateId(),
-        title: currentTab.title,
+        title: currentTab.title || 'Untitled',
         url: currentTab.url,
         domain: extractDomain(currentTab.url),
         tags: tags ? tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [],
@@ -201,11 +234,20 @@ async function loadBookmarks() {
 async function loadCustomCategories() {
     try {
         const result = await chrome.storage.local.get(['customCategories']);
-        if (result.customCategories) {
+        if (result.customCategories && result.customCategories.length > 0) {
             customCategories = new Set(result.customCategories);
+        } else {
+            // Initialize with default categories if none exist
+            const defaultCategories = ['work', 'personal', 'shopping', 'research', 'finance', 'entertainment', 'other'];
+            customCategories = new Set(defaultCategories);
+            // Save default categories to storage
+            await chrome.storage.local.set({ customCategories: defaultCategories });
         }
     } catch (error) {
         console.error('Error loading custom categories:', error);
+        // Fallback to default categories
+        const defaultCategories = ['work', 'personal', 'shopping', 'research', 'finance', 'entertainment', 'other'];
+        customCategories = new Set(defaultCategories);
     }
 }
 
@@ -486,6 +528,7 @@ async function addCustomCategory() {
     const newCategory = newCategoryInput.value.trim();
     if (newCategory && !customCategories.has(newCategory)) {
         customCategories.add(newCategory);
+        // Save immediately to storage
         await saveBookmarksToStorage();
         updateCategoryDropdowns();
         newCategoryInput.value = '';
